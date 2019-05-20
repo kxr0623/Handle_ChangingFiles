@@ -36,7 +36,7 @@ public class Action {
         ExcelUtil myexcel = new ExcelUtil();
         try {
             String filePath = "D:\\银联国际\\其他主机业务\\SFTP_Configure定时任务变更\\3.12 - 自动填写变更单 - 执行过程优化\\biangengPlan.xls";
-            myexcel.read03and07(filePath,0,2,0);
+            myexcel.read03and07(filePath,1,2,0);
         }catch (Exception e){
             System.out.println("Exception thrown  :" +e);
         }

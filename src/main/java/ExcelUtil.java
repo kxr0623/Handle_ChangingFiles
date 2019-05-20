@@ -132,7 +132,9 @@ public class ExcelUtil {
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                         cell_value = sdf.format(date);
                     }
-                    cell_value = String.valueOf(cell.getNumericCellValue());
+                    else{
+                        cell_value = String.valueOf(cell.getNumericCellValue());
+                    }
                     break;
                 case BOOLEAN:
                     cell_value = String.valueOf(cell.getCellType());
@@ -146,7 +148,74 @@ public class ExcelUtil {
 
             }
             System.out.println("第"+row_num+"行第"+cell_num+"列的数据是:"+cell_value);
-            List<String> records = new ArrayList<String>();
+            /*
+            Read all content in the excel sheet 0.
+             */
+            List<Map<String, Object>> Info = new ArrayList<Map<String, Object>>();
+            // 得到Excel的行数
+            int totalRows = sheet.getPhysicalNumberOfRows();
+            int totalCells=0;
+            // 得到Excel的列数(前提是有行数)
+            if (totalRows > 1 && sheet.getRow(0) != null) {
+                totalCells = sheet.getRow(0).getPhysicalNumberOfCells();
+            }
+            System.out.println("totalrow:"+totalRows+"  totalCell"+totalCells);
+            // 循环Excel行数
+            for (int r = 0; r < totalRows; r++) {
+                Row row_n = sheet.getRow(r);
+                if (row_n == null) {
+                    continue;
+                }
+                // 循环Excel的列
+                Map<String, Object> map = new HashMap<String, Object>();
+                for (int c = 0; c < totalCells; c++) {
+                    Cell cell_n = row_n.getCell(c);
+                    if (null != cell_n) {
+                        // 如果是纯数字,比如你写的是25,cell.getNumericCellValue()获得是25.0,通过截取字符串去掉.0获得25
+                        if (cell_n.getCellType() == CellType.NUMERIC) {
+                            String name = "";
+                            if (HSSFDateUtil.isCellDateFormatted(cell_n)) {
+                                Date date = cell_n.getDateCellValue();
+                                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                                name = sdf.format(date);
+                            }
+                            else{
+                                name = String.valueOf(cell_n.getNumericCellValue());
+                            }
+                            map.put("R"+r+"C"+c , name.substring(0, name.length() - 2 > 0 ? name.length() - 2 : 1));// R1C1
+                        } else {
+                            map.put("R"+r+"C"+c, cell_n.getStringCellValue());// R1C1
+                        }
+
+                    }
+                }
+                // 添加到list
+                Info.add(map);
+            }
+            String word1="";
+            String word2="";
+            for (Map<String,Object> item : Info){
+                for (String key : item.keySet()) {
+                    System.out.print("key:" + key);
+                    if (String.valueOf(key).equals("R1C0")){
+                        word1=String.valueOf(item.get(key)) ;
+                    }
+                    else {
+                        word2=String.valueOf(item.get(key)) ;
+                    }
+
+                    System.out.println("  values:" + item.get(key));
+                }
+            }
+            Random r=new Random();
+            int num=(int)(Math.random()*2)+1;
+            if (num==1){
+                System.out.println("Result:"+word1);
+            }else if(num==2) {
+                System.out.println("Result:"+word2);
+            }else {
+                System.out.println("  num:" + num );
+            }
 
         }
         else {
